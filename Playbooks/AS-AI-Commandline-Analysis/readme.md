@@ -58,7 +58,7 @@ The playbook uses a managed identity for the Microsoft Sentinel API Connection, 
 4. Click Add role assignment (Preview).
 5. Use the drop-down lists to select the resource group that your *Microsoft Sentinel Workspace* is in. If multiple workspaces are used in different resource groups consider selecting a subscription instead.
 6. In the Role drop-down list, select the role 'Microsoft Sentinel Responder'.
-7. Click Save to assign the role.
+7. Click Save to assign the Prudvi
 #
 ### Usage
 
