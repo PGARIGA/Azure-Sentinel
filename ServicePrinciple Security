@@ -1,0 +1,36 @@
+Here are few rule planning to create
+
+  Unusual Service Principal Activity: This rule detects any unusual activity performed by a Service Principal, such as abnormal resource provisioning, excessive permission changes, or unusual API calls.
+
+  Service Principal Privilege Escalation: This rule detects any attempts by a Service Principal to elevate its privileges, such as modifying role assignments, requesting administrative permissions, or attempting to access restricted resources.
+
+  Service Principal Credential Theft: This rule looks for potential credential theft or compromise of Service Principals, such as multiple failed authentication attempts, unusual login locations, or unusual authentication patterns.
+
+  Service Principal Anomalous Activity: This rule identifies anomalous behavior of Service Principals, such as logging in from multiple geographic locations simultaneously, accessing resources at unusual times, or performing actions outside of their usual scope.
+
+  Service Principal Suspicious API Calls: This rule detects suspicious API calls made by Service Principals, such as accessing sensitive resources, making high-volume requests, or performing actions inconsistent with their normal behavior.
+
+  Service Principal Privileged Operations: This rule focuses on detecting privileged operations performed by Service Principals, such as creating or modifying highly privileged roles, modifying security configurations, or accessing critical resources.
+
+Service Principal Impersonation: This rule detects any attempts to impersonate a Service Principal, such as spoofing the identity of a legitimate Service Principal, modifying authentication tokens, or forging API requests.
+
+KQL logic for Unusual sp Activity:
+
+let iplist = AADServicePrincipalSignInLogs
+| where TimeGenerated between(ago(14d)..ago(1d))
+| where ResultType == 0
+| summarize ips = make_set(IPAddress)by ServicePrincipalName;
+//List of location in which service principle is detected.
+let locationlist = AADServicePrincipalSignInLogs
+| where TimeGenerated between(ago(14d)..ago(1d))
+| where ResultType == 0
+| summarize location = make_set(Location)by ServicePrincipalName;
+// ServicePrinciple authentication method
+let authenticationlist = AADServicePrincipalSignInLogs
+| where TimeGenerated between(ago(14d)..ago(1d))
+| summarize count(ServicePrincipalName) by ResourceDisplayName,ServicePrincipalName
+| summarize authlist = make_set(ResourceDisplayName) by ServicePrincipalName;
+iplist
+| join (locationlist) on ServicePrincipalName
+| join (authenticationlist) on ServicePrincipalName
+| project ServicePrincipalName,authlist,ips,location
